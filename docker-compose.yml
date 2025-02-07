@@ -1,0 +1,54 @@
+services:
+  app:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      args:
+        user: sammy
+        uid: 1000
+    image: kahuripan_laravel_image
+    container_name: kahuripan
+    command: sh -c "chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache && php-fpm"
+    networks:
+      - kahuripan_network
+    volumes:
+      - ./docker/php/php.ini:/usr/local/etc/php/php.ini
+
+  web:
+    image: nginx:alpine
+    container_name: kahuripan-web
+    restart: unless-stopped
+    ports:
+      - "8082:80"
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - kahuripan_network
+    depends_on:
+      - app
+
+  db:
+    image: mysql:8.0
+    container_name: kahuripan-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - dbdata:/var/lib/mysql
+      - ./docker/mysql/my.cnf:/etc/mysql/my.cnf
+    ports:
+      - "3304:3306"
+    networks:
+      - kahuripan_network
+
+networks:
+  kahuripan_network:
+    driver: bridge
+
+volumes:
+  dbdata:
+    driver: local
