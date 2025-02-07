@@ -65,7 +65,7 @@
                         @foreach ($bantuan as $index => $item)
                             <tr>
                                 <td>{{ $index + 1 }}</td>
-                                <td class="text-start">{{ $item->jenis_bantuan." [".$item->nama."]" }}</td>
+                                <td class="text-start">{{ $item->jenis_bantuan." [".$item->sumber."]"." [".$item->nama."]" }}</td>
                                 <td>{{ number_format($item->nilai, 0, ',', '.') }}</td>
                             </tr>
                         @endforeach
